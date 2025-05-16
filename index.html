@@ -61,7 +61,7 @@ a mosaic that mistakes its own tiles for meaning
     const wordDelay = 200;
 
     function resize() {
-      cw = canvas.width = window.innerWidth;
+      cw = canvas.width = Math.floor(window.innerWidth * 0.8);
       ch = canvas.height = window.innerHeight;
       const isMobile = window.innerWidth < 768;
       baseFontSize = isMobile ? Math.max(20, cw / 15) : Math.min(40, cw / 25);
