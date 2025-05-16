@@ -78,8 +78,7 @@
     const ambientScrambleInterval = 1000; // ms between waves
 
     function resize() {
-      // full canvas so overflow can scroll
-      cw = canvas.width = window.innerWidth - 2 * window.innerWidth * 0.10; // account for horizontal padding
+      cw = canvas.width = window.innerWidth;
       ch = canvas.height = window.innerHeight;
 
       const isMobile = cw < 768;
@@ -107,8 +106,8 @@
       const totalLines = displayWords.length;
       const topOffset = Math.max(0, (ch - totalLines * lineHeight) / 2);
       // center block within padded canvas
-      const blockWidth = cw; 
-      const xOffset = 0;
+      const blockWidth = cw * 0.9;
+      const xOffset = cw * 0.05;
       ctx.save();
       ctx.translate(xOffset, topOffset);
       displayWords.forEach((wordsLine, l) => {
