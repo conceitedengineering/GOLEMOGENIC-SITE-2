@@ -14,7 +14,7 @@
       overflow-y: hidden;
       background: black;
       /* add horizontal padding to ensure text never clips */
-      padding: 0 3vw;
+      padding: 0 1vw;
       box-sizing: border-box;
     }
     canvas {
@@ -83,10 +83,10 @@
       ch = canvas.height = window.innerHeight;
 
       const isMobile = cw < 768;
-      const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 18;
       // definitive rem-based font sizes
-      const mobileRem = 1.8;   // mobile font size
-      const desktopRem = 2;    // desktop font size
+      const mobileRem = 2;   // mobile font size
+      const desktopRem = 2.3;    // desktop font size
       baseFontSize = (isMobile ? mobileRem : desktopRem) * remInPx;
       lineHeight = baseFontSize * 1.2;
 
