@@ -9,12 +9,20 @@
     html, body {
       margin: 0;
       height: 100%;
-      overflow: hidden;
+      /* enable horizontal scroll so overflowing text is visible */
+      overflow-x: auto;
+      overflow-y: hidden;
       background: black;
+      /* add horizontal padding to ensure text never clips */
+      padding: 0 3vw;
+      box-sizing: border-box;
     }
     canvas {
-      display: block;
       background: black;
+      display: block;
+      margin: 0 auto;
+      /* ensure padding is outside drawing area */
+      padding: 0;
     }
     /* hidden poem source */
     #poem {
@@ -27,12 +35,17 @@
   <!-- Paste your poem here inside the pre tag -->
   <pre id="poem">
   you have skin that remembers supernovae
-you salt the earth with graves then call it "history"
-a mosaic that mistakes its own tiles for meaning
-    
+  you salt the earth with graves 
+  then call it "history"
+
+  a mosaic 
+  that mistakes its own tiles 
+  for meaning
+
   you bleed metaphors-
-  call love "gravity", call grief
-  "entropy"—
+  call love "gravity"
+  call grief
+  "entropy"
   </pre>
 
   <canvas id="c"></canvas>
@@ -59,13 +72,22 @@ a mosaic that mistakes its own tiles for meaning
     const letterDelay = 30;
     const wordDelay = 200;
 
+    // Ambient scramble controls
+    const ambientScrambleCount = 3;       // letters to scramble each wave
+    const ambientScrambleDuration = 80;   // ms scrambled
+    const ambientScrambleInterval = 1000; // ms between waves
+
     function resize() {
-      cw = canvas.width = window.innerWidth;
+      // full canvas so overflow can scroll
+      cw = canvas.width = window.innerWidth - 2 * window.innerWidth * 0.10; // account for horizontal padding
       ch = canvas.height = window.innerHeight;
 
-      // Use a dynamic rem-based approach for scaling
-      const maxWidth = Math.min(cw * 0.8, 800); // max 80vw, cap at 800px for large screens
-      baseFontSize = maxWidth / 40;  // roughly 2.5% of the max width
+      const isMobile = cw < 768;
+      const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      // definitive rem-based font sizes
+      const mobileRem = 1.1;   // mobile font size
+      const desktopRem = 1.8;    // desktop font size
+      baseFontSize = (isMobile ? mobileRem : desktopRem) * remInPx;
       lineHeight = baseFontSize * 1.2;
 
       ctx.textBaseline = 'top';
@@ -83,23 +105,46 @@ a mosaic that mistakes its own tiles for meaning
       ctx.clearRect(0, 0, cw, ch);
       ctx.fillStyle = '#fff';
       const totalLines = displayWords.length;
-      const textWidth = Math.min(cw * 0.8, 800);
-      const xOffset = (cw - textWidth) / 2;
       const topOffset = Math.max(0, (ch - totalLines * lineHeight) / 2);
-
+      // center block within padded canvas
+      const blockWidth = cw; 
+      const xOffset = 0;
       ctx.save();
       ctx.translate(xOffset, topOffset);
-
       displayWords.forEach((wordsLine, l) => {
-        const lineStr = wordsLine.length ? wordsLine.map(arr => arr.join('')).join(' ') : '';
+        const lineStr = wordsLine.map(arr => arr.join('')).join(' ');
         const y = l * lineHeight;
-        ctx.fillText(lineStr, textWidth / 2, y);
+        ctx.fillText(lineStr, blockWidth / 2, y);
       });
-
       ctx.restore();
     }
 
+    function ambientScramble() {
+      const revealed = [];
+      actualWords.forEach((wordsLine, l) => {
+        wordsLine.forEach((word, w) => {
+          word.split('').forEach((_, i) => {
+            if (displayWords[l][w][i] !== '') revealed.push({ l, w, i });
+          });
+        });
+      });
+      if (revealed.length) {
+        for (let i = 0; i < ambientScrambleCount; i++) {
+          const { l, w, i: idx } = revealed[Math.floor(Math.random() * revealed.length)];
+          const original = actualWords[l][w][idx];
+          displayWords[l][w][idx] = randChar();
+          drawFrame();
+          setTimeout(() => {
+            displayWords[l][w][idx] = original;
+            drawFrame();
+          }, ambientScrambleDuration);
+        }
+      }
+      setTimeout(ambientScramble, ambientScrambleInterval);
+    }
+
     async function animate() {
+      ambientScramble();
       for (let l = 0; l < actualWords.length; l++) {
         for (let w = 0; w < actualWords[l].length; w++) {
           const word = actualWords[l][w];
