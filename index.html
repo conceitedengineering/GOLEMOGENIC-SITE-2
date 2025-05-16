@@ -54,8 +54,8 @@ a mosaic that mistakes its own tiles for meaning
     );
 
     let cw, ch;
-    let baseFontSize = 20;
-    const lineHeight = baseFontSize * 1.4;
+    let baseFontSize;
+    let lineHeight;
     const scrambleCycles = 6;
     const letterDelay = 30;
     const wordDelay = 200;
@@ -63,6 +63,9 @@ a mosaic that mistakes its own tiles for meaning
     function resize() {
       cw = canvas.width = window.innerWidth;
       ch = canvas.height = window.innerHeight;
+      const isMobile = window.innerWidth < 768;
+      baseFontSize = isMobile ? Math.max(16, cw / 20) : Math.min(40, cw / 25);
+      lineHeight = baseFontSize * 1.2;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
       ctx.font = `300 ${baseFontSize}px "Roboto Mono", monospace`;
