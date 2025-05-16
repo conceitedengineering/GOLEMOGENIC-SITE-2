@@ -75,7 +75,8 @@
     // Ambient scramble controls
     const ambientScrambleCount = 3;       // letters to scramble each wave
     const ambientScrambleDuration = 80;   // ms scrambled
-    const ambientScrambleInterval = 1000; // ms between waves
+    const ambientScrambleInterval = 200; // ms between waves
+    const waveDelay = 100;               // ms between each letter in the wave
 
     function resize() {
       cw = canvas.width = window.innerWidth;
@@ -127,16 +128,20 @@
           });
         });
       });
+
       if (revealed.length) {
+        // Create a wave of scrambles
         for (let i = 0; i < ambientScrambleCount; i++) {
-          const { l, w, i: idx } = revealed[Math.floor(Math.random() * revealed.length)];
-          const original = actualWords[l][w][idx];
-          displayWords[l][w][idx] = randChar();
-          drawFrame();
           setTimeout(() => {
-            displayWords[l][w][idx] = original;
+            const { l, w, i: idx } = revealed[Math.floor(Math.random() * revealed.length)];
+            const original = actualWords[l][w][idx];
+            displayWords[l][w][idx] = randChar();
             drawFrame();
-          }, ambientScrambleDuration);
+            setTimeout(() => {
+              displayWords[l][w][idx] = original;
+              drawFrame();
+            }, ambientScrambleDuration);
+          }, i * waveDelay);
         }
       }
       setTimeout(ambientScramble, ambientScrambleInterval);
