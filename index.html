@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scrambling Poem</title>
+  <!-- Load a thin monospaced font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+      background: black;
+    }
+    /* hidden poem source */
+    #poem {
+      display: none;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <!-- Paste your poem here inside the pre tag -->
+  <pre id="poem">
+  you have skin that remembers supernovae
+
+you salt the earth with graves then call it "history"
+
+a mosaic that mistakes its own tiles for meaning
+  you bleed metaphors-
+  call love "gravity", call grief
+  "entropy"—
+  </pre>
+
+  <canvas id="c"></canvas>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const poemText = document.getElementById('poem').innerText;
+    const lines = poemText.split('\n');
+
+    // Prepare nested arrays for actual and display characters
+    const actualWords = lines.map(line => {
+      const trimmed = line.trim();
+      return trimmed ? trimmed.split(/\s+/) : [];
+    });
+    const displayWords = actualWords.map(wordsLine =>
+      wordsLine.map(word => Array(word.length).fill(''))
+    );
+
+    let cw, ch;
+    let baseFontSize = 20;
+    const lineHeight = baseFontSize * 1.4;
+    const scrambleCycles = 6;
+    const letterDelay = 30;
+    const wordDelay = 200;
+
+    function resize() {
+      cw = canvas.width = window.innerWidth;
+      ch = canvas.height = window.innerHeight;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.font = `300 ${baseFontSize}px "Roboto Mono", monospace`;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function randChar() {
+      return String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    }
+
+    function drawFrame() {
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.fillStyle = '#fff';
+      const totalLines = displayWords.length;
+      displayWords.forEach((wordsLine, l) => {
+        const lineStr = wordsLine.length ? wordsLine.map(arr => arr.join('')).join(' ') : '';
+        const y = ch / 2 - ((totalLines - 1) * lineHeight) / 2 + l * lineHeight;
+        ctx.fillText(lineStr, cw / 2, y);
+      });
+    }
+
+    async function animate() {
+      for (let l = 0; l < actualWords.length; l++) {
+        for (let w = 0; w < actualWords[l].length; w++) {
+          const word = actualWords[l][w];
+          for (let i = 0; i < word.length; i++) {
+            for (let cycle = 0; cycle < scrambleCycles; cycle++) {
+              displayWords[l][w][i] = randChar();
+              drawFrame();
+              await new Promise(r => setTimeout(r, letterDelay));
+            }
+            displayWords[l][w][i] = word[i];
+            drawFrame();
+            await new Promise(r => setTimeout(r, letterDelay));
+          }
+          await new Promise(r => setTimeout(r, wordDelay));
+        }
+      }
+    }
+
+    animate();
+  </script>
+</body>
+</html>
