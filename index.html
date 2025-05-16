@@ -64,9 +64,9 @@ a mosaic that mistakes its own tiles for meaning
       cw = canvas.width = window.innerWidth;
       ch = canvas.height = window.innerHeight;
       const isMobile = window.innerWidth < 768;
-      baseFontSize = isMobile ? Math.max(16, cw / 20) : Math.min(40, cw / 25);
-      lineHeight = baseFontSize * 1.2;
-      ctx.textBaseline = 'middle';
+      baseFontSize = isMobile ? Math.max(20, cw / 15) : Math.min(40, cw / 25);
+      lineHeight = baseFontSize * 1.1; // tighter line height for both mobile and desktop
+      ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.font = `300 ${baseFontSize}px "Roboto Mono", monospace`;
     }
@@ -81,9 +81,10 @@ a mosaic that mistakes its own tiles for meaning
       ctx.clearRect(0, 0, cw, ch);
       ctx.fillStyle = '#fff';
       const totalLines = displayWords.length;
+      const topOffset = Math.max(0, (ch - totalLines * lineHeight) / 2);
       displayWords.forEach((wordsLine, l) => {
         const lineStr = wordsLine.length ? wordsLine.map(arr => arr.join('')).join(' ') : '';
-        const y = ch / 2 - ((totalLines - 1) * lineHeight) / 2 + l * lineHeight;
+        const y = topOffset + l * lineHeight;
         ctx.fillText(lineStr, cw / 2, y);
       });
     }
