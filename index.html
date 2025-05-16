@@ -27,10 +27,9 @@
   <!-- Paste your poem here inside the pre tag -->
   <pre id="poem">
   you have skin that remembers supernovae
-
 you salt the earth with graves then call it "history"
-
 a mosaic that mistakes its own tiles for meaning
+    
   you bleed metaphors-
   call love "gravity", call grief
   "entropy"—
@@ -61,11 +60,14 @@ a mosaic that mistakes its own tiles for meaning
     const wordDelay = 200;
 
     function resize() {
-      cw = canvas.width = Math.floor(window.innerWidth * 0.8);
+      cw = canvas.width = window.innerWidth;
       ch = canvas.height = window.innerHeight;
-      const isMobile = window.innerWidth < 768;
-      baseFontSize = isMobile ? Math.max(20, cw / 15) : Math.min(40, cw / 25);
-      lineHeight = baseFontSize * 1.1; // tighter line height for both mobile and desktop
+
+      // Use a dynamic rem-based approach for scaling
+      const maxWidth = Math.min(cw * 0.8, 800); // max 80vw, cap at 800px for large screens
+      baseFontSize = maxWidth / 40;  // roughly 2.5% of the max width
+      lineHeight = baseFontSize * 1.2;
+
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.font = `300 ${baseFontSize}px "Roboto Mono", monospace`;
@@ -81,12 +83,20 @@ a mosaic that mistakes its own tiles for meaning
       ctx.clearRect(0, 0, cw, ch);
       ctx.fillStyle = '#fff';
       const totalLines = displayWords.length;
+      const textWidth = Math.min(cw * 0.8, 800);
+      const xOffset = (cw - textWidth) / 2;
       const topOffset = Math.max(0, (ch - totalLines * lineHeight) / 2);
+
+      ctx.save();
+      ctx.translate(xOffset, topOffset);
+
       displayWords.forEach((wordsLine, l) => {
         const lineStr = wordsLine.length ? wordsLine.map(arr => arr.join('')).join(' ') : '';
-        const y = topOffset + l * lineHeight;
-        ctx.fillText(lineStr, cw / 2, y);
+        const y = l * lineHeight;
+        ctx.fillText(lineStr, textWidth / 2, y);
       });
+
+      ctx.restore();
     }
 
     async function animate() {
